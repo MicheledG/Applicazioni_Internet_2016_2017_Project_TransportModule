@@ -9,6 +9,7 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,6 +30,7 @@ import it.polito.ai.transportmodule.resources.geojson.linepoint.PropertiesLinePo
 import it.polito.ai.transportmodule.services.LinesService;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class LinesController {
 	
 	@Autowired
