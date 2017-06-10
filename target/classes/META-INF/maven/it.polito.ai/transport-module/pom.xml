@@ -60,9 +60,5 @@
 	<description>lines-module handle the RESTful API about:
 - retrieve all the lines;
 - retrieve a single line;
-- compute the minimum path (route) between 2 addresses;
-
-TODO:
-- define the API;
-- decide if the addresses or the coordinates are received when a route needs to be compute</description>
+- compute the minimum path (route) between 2 addresses;</description>
 </project>
