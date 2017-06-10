@@ -57,7 +57,7 @@
 	</build>
 
 
-	<description>lines-module handle the RESTful API about:
+	<description>transport-module handle the RESTful API about:
 - retrieve all the lines;
 - retrieve a single line;
 - compute the minimum path (route) between 2 addresses;</description>
