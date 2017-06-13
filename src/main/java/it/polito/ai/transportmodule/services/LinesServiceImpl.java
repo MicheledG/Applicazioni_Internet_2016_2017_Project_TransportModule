@@ -1,6 +1,7 @@
 package it.polito.ai.transportmodule.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class LinesServiceImpl implements LinesService {
 	@Autowired
 	private BusLineRepository busLineRepository;
 	@Autowired
-	private BusStopRepository BusStopRepository;
+	private BusStopRepository busStopRepository;
 	
 	@Override
 	public BusLine getBusLine(String lineId) {
@@ -53,43 +54,60 @@ public class LinesServiceImpl implements LinesService {
 		for (BusLine busLine : lines) {
 			busLine.getLineStops().size();
 		}
-		
 		return lines;
 	}
 
 	@Override
 	public BusStop getBusStop(String stopId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> getBusStopNames() {
-		// TODO Auto-generated method stub
-		return null;
+		BusStop busStop = busStopRepository.getOne(stopId);
+		if(busStop == null){
+			return null;
+		}
+		//needs to do this because lazy evaluation
+		busStop.getStoppingLines().size();
+		return busStop;
 	}
 
 	@Override
 	public List<BusStop> getBusStops() {
-		// TODO Auto-generated method stub
-		return null;
+		List<BusStop> busStops = busStopRepository.findAll();
+		for (BusStop busStop : busStops) {
+			busStop.getStoppingLines().size();
+		}
+		return busStops;
 	}
 
 	@Override
 	public BusStop getBusStopOfBusLine(String lineId, int sequenceNumber) {
-		// TODO Auto-generated method stub
-		return null;
+		List<BusLineStop> busLineStops = this.getBusLineStopsOfBusLine(lineId);
+		if(busLineStops == null){
+			return null;
+		}
+		
+		Collections.sort(busLineStops);
+		int busStopIndex = sequenceNumber - 1;
+		BusLineStop busLineStop = busLineStops.get(busStopIndex);
+		if(busLineStop == null){
+			return null;
+		}
+		
+		BusStop busStop = busLineStop.getBusStop();
+		return busStop;
 	}
 
 	@Override
 	public List<BusLineStop> getBusLineStopsOfBusLine(String lineId) {
-		// TODO Auto-generated method stub
-		return null;
+		BusLine busLine = this.getBusLine(lineId);
+		if(busLine == null){
+			return null;
+		}
+		
+		return busLine.getLineStops();
 	}
 
 	@Override
 	public List<BusLine> getBusLinesOfBusStop(String stopId) {
-		BusStop busStop = BusStopRepository.getOne(stopId);
+		BusStop busStop = this.getBusStop(stopId);
 		if(busStop == null){
 			return null;
 		}

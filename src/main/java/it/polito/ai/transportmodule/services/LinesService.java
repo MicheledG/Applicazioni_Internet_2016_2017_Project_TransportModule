@@ -11,7 +11,6 @@ public interface LinesService {
 	public List<String> getBusLineNames();
 	public List<BusLine> getBusLines();
 	public BusLine getBusLine(String lineId);
-	public List<String> getBusStopNames();
 	public List<BusStop> getBusStops();
 	public BusStop getBusStop(String stopId);
 	public BusStop getBusStopOfBusLine(String lineId, int sequenceNumber);
