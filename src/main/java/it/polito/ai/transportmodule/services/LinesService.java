@@ -16,5 +16,8 @@ public interface LinesService {
 	public BusStop getBusStopOfBusLine(String lineId, int sequenceNumber);
 	public List<BusLineStop> getBusLineStopsOfBusLine(String lineId);
 	public List<BusLine> getBusLinesOfBusStop(String stopId);
+	public double getDistanceFromBusStop(double[] startCoordinates, String firstStop);
+	public List<BusStop> findStopsInRadius(double[] startCoordinates, int radius);
+	public List<String> findLinesConnectingStops(BusStop busStop, BusStop busStop2);
 	
 }

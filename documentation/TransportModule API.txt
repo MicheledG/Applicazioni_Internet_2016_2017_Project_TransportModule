@@ -1,0 +1,122 @@
+1) TransportModule API: 
+
+-- request URL: /route?fromLng=coordinate&fromLat=coordinate&toLng=coordinate&toLat=coordinate&details=true&geoJson=true
+-- request method: GET
+-- response:
+{
+	details: 
+	[
+		{
+			sequenceNumber: 1,
+			type: "foot",
+			from: "Via ciccio",
+			to: "Fermata Fermi - 8120",
+			lenght: "200m"
+		},
+		{
+			sequenceNumber: 2,
+			type: "bus",
+			from: "Fermata Fermi - 8120",
+			to: "Fermata Lingotto - 8140",
+			line: "METRO",
+			stops: "22"
+		},
+		{
+			sequenceNumber: 3,
+			type: "foot",
+			from: "Fermata Lingotto - 8140",
+			to: "Via pasticcio",
+			lenght: "80m"
+		},
+	],
+	geoJson: 
+	{
+		type: "FeatureCollection",
+		features:
+		[
+			{
+				type: "Feature",
+				properties:
+				{
+					sequenceNumber: 1 //starting point!
+				},
+				geometry: 
+				{
+					type: "Point",
+					coordinates: []
+				}
+			},
+			{
+				type: "Feature",
+				properties:
+				{
+					sequenceNumber: 2 //arriving point!
+				},
+				geometry: 
+				{
+					type: "Point",
+					coordinates: []
+				}
+			},
+			{
+				type: "Feature",
+				properties:
+				{
+					type: "foot",
+					from: "Via ciccio",
+					to: "Fermata Fermi - 8120",
+					lenght: "200m"
+				},
+				geometry: 
+				{
+					type: "LineString",
+					coordinates: 
+					[
+						[],
+						[]
+					]
+				}
+			},
+			{
+				type: "Feature",
+				properties:
+				{
+					type: "bus",
+					from: "Fermata Fermi - 8120",
+					to: "Fermata Lingotto - 8140",
+					type: "bus",
+					line: "METRO",
+					stops: "22"
+				},
+				geometry: 
+				{
+					type: "LineString",
+					coordinates: 
+					[
+						[],
+						[]
+					]
+				}
+			},
+			{
+				type: "Feature",
+				properties:
+				{
+					type: "foot",
+					from: "Fermata Lingotto - 8140",
+					to: "Via pasticcio"
+					lenght: "80m"
+				},
+				geometry: 
+				{
+					type: "LineString",
+					coordinates: 
+					[
+						[],
+						[]
+					]
+				}
+			}
+		]
+	}
+}

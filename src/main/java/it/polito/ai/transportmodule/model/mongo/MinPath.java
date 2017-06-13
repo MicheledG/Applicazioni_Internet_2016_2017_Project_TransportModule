@@ -2,11 +2,14 @@ package it.polito.ai.transportmodule.model.mongo;
 
 import java.util.List;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 /**
  * Classe che rappresenta i percorsi a costo minimo da salvare all'interno di MongoDB.
  * */
+@Document(collection = "MinPaths")
 public class MinPath implements Comparable<MinPath> {
-
+	
 	/**
 	 * Id della fermata (BusStop) di partenza dell'intero percorso
 	 * */

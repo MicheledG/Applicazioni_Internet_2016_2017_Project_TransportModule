@@ -125,4 +125,22 @@ public class LinesServiceImpl implements LinesService {
 		return filteredStoppingLinesList;
 	}
 
+	@Override
+	public double getDistanceFromBusStop(double[] startCoordinates, String firstStop) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public List<BusStop> findStopsInRadius(double[] startCoordinates, int radius) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<String> findLinesConnectingStops(BusStop busStop, BusStop busStop2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -1,4 +1,4 @@
-package it.polito.ai.transportmodule;
+package it.polito.ai.transportmodule.config;
 
 import java.util.Properties;
 
