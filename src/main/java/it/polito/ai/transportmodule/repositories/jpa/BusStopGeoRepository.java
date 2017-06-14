@@ -20,4 +20,12 @@ public interface BusStopGeoRepository extends JpaRepository<BusStopGeo, String> 
 			)
 	public List<String> findBusStopGeoInRadius(String textGeography, int radius);
 	
+	@Query(value
+			= "select ST_Distance(ST_GeographyFromText(?1), position) as distance "
+			+ "from busstopgeo "
+			+ "where id = ?2",
+			nativeQuery=true
+			)
+	public double computeDistanceBetweenPointAndBusStop(String textGeography, String stopId);
+	
 }

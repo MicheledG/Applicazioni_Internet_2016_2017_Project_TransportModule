@@ -134,8 +134,15 @@ public class LinesServiceImpl implements LinesService {
 
 	@Override
 	public double getDistanceFromBusStop(double[] startCoordinates, String firstStop) {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		double lat = startCoordinates[0];
+		double lng = startCoordinates[1];
+		String textGeography = geographyHelper.createTextGeographyPoint(lat, lng);
+		
+		double distance = busStopGeoRepository.computeDistanceBetweenPointAndBusStop(textGeography, firstStop);
+		
+		return distance;
+	
 	}
 
 	@Override
@@ -145,8 +152,19 @@ public class LinesServiceImpl implements LinesService {
 		double lng = startCoordinates[1];
 		String textGeography = geographyHelper.createTextGeographyPoint(lat, lng);
 		
-		List<String> stopsInRadius= busStopGeoRepository.findBusStopGeoInRadius(textGeography, radius); 
-		return null;
+		List<String> stopsInRadius= busStopGeoRepository.findBusStopGeoInRadius(textGeography, radius);
+		
+		if(stopsInRadius == null || stopsInRadius.size() == 0){
+			return null;
+		}
+		
+		List<BusStop> busStops = new ArrayList<>();
+		for (String busStopId : stopsInRadius) {
+			BusStop busStop = busStopRepository.getOne(busStopId);
+			busStops.add(busStop);
+		}
+		
+		return busStops;
 	}
 
 	@Override
