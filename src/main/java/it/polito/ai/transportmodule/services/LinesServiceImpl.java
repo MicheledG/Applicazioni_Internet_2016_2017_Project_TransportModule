@@ -3,8 +3,10 @@ package it.polito.ai.transportmodule.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import it.polito.ai.transportmodule.model.jpa.BusLine;
 import it.polito.ai.transportmodule.model.jpa.BusLineStop;
 import it.polito.ai.transportmodule.model.jpa.BusStop;
 import it.polito.ai.transportmodule.repositories.jpa.BusLineRepository;
+import it.polito.ai.transportmodule.repositories.jpa.BusStopGeoRepository;
 import it.polito.ai.transportmodule.repositories.jpa.BusStopRepository;
 
 @Service
@@ -24,6 +27,10 @@ public class LinesServiceImpl implements LinesService {
 	private BusLineRepository busLineRepository;
 	@Autowired
 	private BusStopRepository busStopRepository;
+	@Autowired
+	private BusStopGeoRepository busStopGeoRepository;
+	@Autowired
+	private GeographyHelper geographyHelper;
 	
 	@Override
 	public BusLine getBusLine(String lineId) {
@@ -133,14 +140,39 @@ public class LinesServiceImpl implements LinesService {
 
 	@Override
 	public List<BusStop> findStopsInRadius(double[] startCoordinates, int radius) {
-		// TODO Auto-generated method stub
+		
+		double lat = startCoordinates[0];
+		double lng = startCoordinates[1];
+		String textGeography = geographyHelper.createTextGeographyPoint(lat, lng);
+		
+		List<String> stopsInRadius= busStopGeoRepository.findBusStopGeoInRadius(textGeography, radius); 
 		return null;
 	}
 
 	@Override
-	public List<String> findLinesConnectingStops(BusStop busStop, BusStop busStop2) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<String> findLinesConnectingStops(BusStop busStopA, BusStop busStopB) {
+		
+		List<BusLine> stoppingLinesA = this.getBusLinesOfBusStop(busStopA.getId());
+		if(stoppingLinesA == null || stoppingLinesA.size() == 0){
+			return null;
+		}
+		
+		Set<String> stoppingLinesB = new HashSet<>();
+		List<BusLine> stoppingLinesBList = this.getBusLinesOfBusStop(busStopB.getId());
+		for (BusLine busLine : stoppingLinesBList) {
+			String lineName = busLine.getLine();
+			stoppingLinesB.add(lineName);
+		}
+		
+		List<String> connectingLines = new ArrayList<>();
+		for (BusLine busLine : stoppingLinesA) {
+			String lineName = busLine.getLine();
+			if(stoppingLinesB.contains(lineName)){
+				connectingLines.add(lineName);
+			}
+		}
+		
+		return connectingLines;
 	}
 
 }
