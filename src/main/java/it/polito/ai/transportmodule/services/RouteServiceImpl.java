@@ -204,6 +204,10 @@ public class RouteServiceImpl implements RouteService {
 	    }
 	}
 	
+	/*
+	 * A RouteSegment is an homogeneous segment of the MinPath
+	 * that is a set of contiguous edges all of the same type (foot or bus)
+	 */
 	private List<RouteSegment> defineRouteSegments(MinPath path) {
 		
 		List<RouteSegment> routeSegments = new ArrayList<RouteSegment>();
@@ -227,7 +231,7 @@ public class RouteServiceImpl implements RouteService {
 					routeSegments.add(routeSegment);
 				}
 				else {
-					//the previous segment is a ROuteSegment so simply update it adding this new edge
+					//the previous segment is a RouteSegment so simply update it adding this new edge
 					previousRouteSegment.getEdges().add(edge);
 					previousRouteSegment.getBusStops().add(linesService.getBusStop(edge.getIdDestination()));
 				}

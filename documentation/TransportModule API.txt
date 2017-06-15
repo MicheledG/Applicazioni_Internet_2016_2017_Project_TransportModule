@@ -3,7 +3,15 @@
 -- request URL: /route?fromLng=coordinate&fromLat=coordinate&toLng=coordinate&toLat=coordinate&details=true&geoJson=true
 -- request method: GET
 -- response:
-{
+{	
+	"fromCoordinates": [
+        45.073804,
+        7.601808
+    ],
+    "toCoordinates": [
+        45.029873,
+        7.666385
+    ],
 	details: 
 	[
 		{

@@ -9,6 +9,8 @@ import it.polito.ai.transportmodule.resources.geojson.GeoJson;
 
 public class RouteResource extends ResourceSupport {
 	
+	private double[] fromCoordinates;
+	private double[] toCoordinates;
 	private List<RouteDetailResource> details = new ArrayList<>();
 	private GeoJson geoJson;
 	
@@ -23,5 +25,17 @@ public class RouteResource extends ResourceSupport {
 	}
 	public void setDetails(List<RouteDetailResource> details) {
 		this.details = details;
+	}
+	public double[] getFromCoordinates() {
+		return fromCoordinates;
+	}
+	public void setFromCoordinates(double[] fromCoordinates) {
+		this.fromCoordinates = fromCoordinates;
+	}
+	public double[] getToCoordinates() {
+		return toCoordinates;
+	}
+	public void setToCoordinates(double[] toCoordinates) {
+		this.toCoordinates = toCoordinates;
 	}
 }
