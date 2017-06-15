@@ -24,6 +24,7 @@ import it.polito.ai.transportmodule.resources.RouteDetailResource;
 import it.polito.ai.transportmodule.resources.RouteFootDetailResource;
 import it.polito.ai.transportmodule.resources.RouteResource;
 import it.polito.ai.transportmodule.resources.geojson.GeoJson;
+import it.polito.ai.transportmodule.services.LinesService;
 import it.polito.ai.transportmodule.services.RouteService;
 
 @RestController
@@ -34,6 +35,8 @@ public class RouteController {
 	
 	@Autowired
 	private RouteService routeService;
+	@Autowired
+	private LinesService linesService;
 	
 	@RequestMapping(value="/route", method=RequestMethod.GET)
 	public HttpEntity<RouteResource> getRoute(
@@ -118,7 +121,8 @@ public class RouteController {
 		firstDetail.setSequenceNumber(detailSequenceNumber);
 		firstDetail.setFrom(firstDetailFromField);
 		firstDetail.setTo(firstDetailToField);
-		firstDetail.setLength(200); //TODO => RETRIEVE THE REAL LENGTH
+		int firstDetailLengthField = ((Double) linesService.getDistanceFromBusStop(route.getStartCoordinates(), firstRouteStop.getId())).intValue();
+		firstDetail.setLength(firstDetailLengthField); 
 		detailSequenceNumber++;
 		details.add(firstDetail);
 		
@@ -159,12 +163,14 @@ public class RouteController {
 				BusStop lastBusStop = busStops.get(numberOfStops-1);
 				String from = firstBusStop.getId() + " - " + firstBusStop.getName();
 				String to = lastBusStop.getId() + " - " + lastBusStop.getName();
+				double[] firstBusStopCoordinates = new double[]{firstBusStop.getLat(), firstBusStop.getLng()};
+				int distance = ((Double) linesService.getDistanceFromBusStop(firstBusStopCoordinates, lastBusStop.getId())).intValue();
 				
 				//create the RouteBusDetailResource for each RouteBusSegmentPortion
 				RouteFootDetailResource routeFootDetailResource = new RouteFootDetailResource();
 				routeFootDetailResource.setFrom(from);
 				routeFootDetailResource.setTo(to);
-				routeFootDetailResource.setLength(200); //TODO => RETRIEVE REAL LENGTH
+				routeFootDetailResource.setLength(distance);
 				routeFootDetailResource.setSequenceNumber(detailSequenceNumber);
 				detailSequenceNumber++;
 				
@@ -177,10 +183,11 @@ public class RouteController {
 		RouteFootDetailResource lastDetail = new RouteFootDetailResource();
 		String lastDetailFromField = lastRouteStop.getId() + " - " + lastRouteStop.getName();
 		String lastDetailToField = "Lat: "+route.getArriveCoordinates()[0]+" - Lng: "+route.getArriveCoordinates()[1];
-		lastDetail.setSequenceNumber(detailSequenceNumber); //TODO => RETRIEVE THE REAL SEQUENCE NUMBER
+		lastDetail.setSequenceNumber(detailSequenceNumber);
 		lastDetail.setFrom(lastDetailFromField);
 		lastDetail.setTo(lastDetailToField);
-		lastDetail.setLength(200); //TODO => RETRIEVE THE REAL LENGTH
+		int lastDetailLengthField = ((Double) linesService.getDistanceFromBusStop(route.getArriveCoordinates(), lastRouteStop.getId())).intValue(); 
+		lastDetail.setLength(lastDetailLengthField);
 		details.add(lastDetail);
 		
 		return details;
