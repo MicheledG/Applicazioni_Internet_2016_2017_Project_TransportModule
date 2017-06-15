@@ -118,5 +118,12 @@
 				}
 			}
 		]
-	}
+	},
+	_links: 
+	{
+        self: 
+		{
+            href: "http://localhost:8080/route?fromLat=45.0&fromLng=7.0&toLat=45.0&toLng=7.0&details=true&geoJson=false"
+        }
+    }
 }
