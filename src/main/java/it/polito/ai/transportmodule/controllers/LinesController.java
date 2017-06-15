@@ -21,12 +21,13 @@ import it.polito.ai.transportmodule.model.jpa.BusLineStop;
 import it.polito.ai.transportmodule.resources.LineResource;
 import it.polito.ai.transportmodule.resources.LineSnippetResource;
 import it.polito.ai.transportmodule.resources.StopResource;
+import it.polito.ai.transportmodule.resources.geojson.FeatureGeneric;
 import it.polito.ai.transportmodule.resources.geojson.GeoJson;
-import it.polito.ai.transportmodule.resources.geojson.linelinestring.FeatureLineLineString;
-import it.polito.ai.transportmodule.resources.geojson.linelinestring.GeometryLineLineString;
-import it.polito.ai.transportmodule.resources.geojson.linepoint.FeatureLinePoint;
-import it.polito.ai.transportmodule.resources.geojson.linepoint.GeometryLinePoint;
-import it.polito.ai.transportmodule.resources.geojson.linepoint.PropertiesLinePoint;
+import it.polito.ai.transportmodule.resources.geojson.GeometryLineString;
+import it.polito.ai.transportmodule.resources.geojson.GeometryPoint;
+import it.polito.ai.transportmodule.resources.geojson.line.FeatureLineLineString;
+import it.polito.ai.transportmodule.resources.geojson.line.FeatureLinePoint;
+import it.polito.ai.transportmodule.resources.geojson.line.PropertiesLinePoint;
 import it.polito.ai.transportmodule.services.LinesService;
 
 @RestController
@@ -150,19 +151,19 @@ public class LinesController {
 			}
 			featureLinePoint.setProperties(propertiesLinePoint);
 			
-			GeometryLinePoint geometryLinePoint = new GeometryLinePoint();
+			GeometryPoint geometryLinePoint = new GeometryPoint();
 			geometryLinePoint.getCoordinates().add(longitude);
 			geometryLinePoint.getCoordinates().add(latitude);
 			featureLinePoint.setGeometry(geometryLinePoint);
 			
 			//add each point feature to the features list
-			geoJson.getFeatures().add((Object)featureLinePoint);
+			geoJson.getFeatures().add((FeatureGeneric)featureLinePoint);
 		}
 		
 		//create and fill the FeatureLineLineString
 		FeatureLineLineString featureLineLineString = new FeatureLineLineString();
 		
-		GeometryLineLineString geometryLineLineString = new GeometryLineLineString();
+		GeometryLineString geometryLineLineString = new GeometryLineString();
 		for (Object object : geoJson.getFeatures()) {
 			//till now we have only FeatureLinePoint in the features list
 			FeatureLinePoint featureLinePoint = (FeatureLinePoint) object;
@@ -173,7 +174,7 @@ public class LinesController {
 		featureLineLineString.setGeometry(geometryLineLineString);
 		
 		//add the LineString feature to the features list
-		geoJson.getFeatures().add((Object)featureLineLineString);
+		geoJson.getFeatures().add((FeatureGeneric)featureLineLineString);
 		return geoJson;
 	}
 }

@@ -6,14 +6,14 @@ import java.util.List;
 public class GeoJson {
 	
 	private String type="FeatureCollection";
-	private List<Object> features = new ArrayList<>();
+	private List<FeatureGeneric> features = new ArrayList<>();
 	public String getType() {
 		return type;
 	}
-	public List<Object> getFeatures() {
+	public List<FeatureGeneric> getFeatures() {
 		return features;
 	}
-	public void setFeatures(List<Object> features) {
+	public void setFeatures(List<FeatureGeneric> features) {
 		this.features = features;
 	}
 	

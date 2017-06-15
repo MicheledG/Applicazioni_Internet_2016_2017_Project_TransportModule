@@ -19,7 +19,7 @@
 			type: "foot",
 			from: "Via ciccio",
 			to: "Fermata Fermi - 8120",
-			lenght: "200m"
+			lenght: 200//in meter
 		},
 		{
 			sequenceNumber: 2,
@@ -27,14 +27,14 @@
 			from: "Fermata Fermi - 8120",
 			to: "Fermata Lingotto - 8140",
 			line: "METRO",
-			stops: "22"
+			stops: 22 //number of stops to the next bus!
 		},
 		{
 			sequenceNumber: 3,
 			type: "foot",
 			from: "Fermata Lingotto - 8140",
 			to: "Via pasticcio",
-			lenght: "80m"
+			lenght: 80 //in meter
 		},
 	],
 	geoJson: 
@@ -73,7 +73,7 @@
 					type: "foot",
 					from: "Via ciccio",
 					to: "Fermata Fermi - 8120",
-					lenght: "200m"
+					lenght: 200 //in meter
 				},
 				geometry: 
 				{
@@ -113,7 +113,7 @@
 					type: "foot",
 					from: "Fermata Lingotto - 8140",
 					to: "Via pasticcio"
-					lenght: "80m"
+					lenght: 80 //in meter
 				},
 				geometry: 
 				{
