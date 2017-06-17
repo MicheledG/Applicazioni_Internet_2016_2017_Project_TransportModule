@@ -235,6 +235,11 @@ public class RouteController {
 		 * 2) create the LineString Features
 		 */
 		
+		//create the fromPoint to first stop linestring
+		//TODO
+		//create the lastStop to the toPoint linestring
+		//TODO
+		//create all the other linestrings
 		for (RouteSegment routeSegment: route.getSegments()) {
 			if(routeSegment instanceof RouteBusSegment){
 				//it is a segment by bus!

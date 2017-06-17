@@ -2,9 +2,9 @@ package it.polito.ai.transportmodule.resources.geojson.route;
 
 public class PropertiesRouteLineStringFoot extends PropertiesRouteLineString {
 	
-	private static final String type = "foot";
+	private final String type = "foot";
 	private int length;
-	public static String getType() {
+	public String getType() {
 		return type;
 	}
 	public int getLength() {

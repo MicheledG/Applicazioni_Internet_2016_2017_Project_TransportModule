@@ -2,10 +2,10 @@ package it.polito.ai.transportmodule.resources.geojson.route;
 
 public class PropertiesRouteLineStringBus extends PropertiesRouteLineString {
 
-	private static final String type="bus";
+	private final String type= "bus";
 	private String line;
 	private int stops;
-	public static String getType() {
+	public String getType() {
 		return type;
 	}
 	public String getLine() {
