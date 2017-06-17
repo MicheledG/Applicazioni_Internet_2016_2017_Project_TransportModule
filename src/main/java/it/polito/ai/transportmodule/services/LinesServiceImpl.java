@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,12 +37,13 @@ public class LinesServiceImpl implements LinesService {
 	@Override
 	public BusLine getBusLine(String lineId) {
 		BusLine busLine = busLineRepository.getOne(lineId);
-		if(busLine == null){
+		try{
+			//needs to do this because lazy evaluation
+			busLine.getLineStops().size();
+			return busLine;
+		} catch (EntityNotFoundException e) {
 			return null;
 		}
-		//needs to do this because lazy evaluation
-		busLine.getLineStops().size();
-		return busLine;
 	}
 
 	@Override
@@ -67,12 +70,13 @@ public class LinesServiceImpl implements LinesService {
 	@Override
 	public BusStop getBusStop(String stopId) {
 		BusStop busStop = busStopRepository.getOne(stopId);
-		if(busStop == null){
+		try {
+			//needs to do this because lazy evaluation
+			busStop.getStoppingLines().size();
+			return busStop;
+		} catch (EntityNotFoundException e) {
 			return null;
 		}
-		//needs to do this because lazy evaluation
-		busStop.getStoppingLines().size();
-		return busStop;
 	}
 
 	@Override
