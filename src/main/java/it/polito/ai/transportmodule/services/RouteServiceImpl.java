@@ -91,7 +91,7 @@ public class RouteServiceImpl implements RouteService {
 			List<String> listOfLines = linesService
 					.findLinesConnectingStops(routeBusSegment.getBusStops().get(i), routeBusSegment.getBusStops().get(i+1));
 			if(listOfLines == null){
-				//TODO
+				//TODO -> we shouldn't be here!!!
 			}
 			else{
 				listOfLinesForPortions.add(listOfLines);
