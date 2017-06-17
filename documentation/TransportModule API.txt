@@ -1,5 +1,6 @@
-1) TransportModule API: 
+TransportModule API: 
 
+1) COMPUTE ROUTE: 
 -- request URL: /route?fromLng=coordinate&fromLat=coordinate&toLng=coordinate&toLat=coordinate&details=true&geoJson=true
 -- request method: GET
 -- response:
