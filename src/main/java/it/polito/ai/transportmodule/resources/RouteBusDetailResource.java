@@ -2,7 +2,7 @@ package it.polito.ai.transportmodule.resources;
 
 public class RouteBusDetailResource extends RouteDetailResource {
 	
-	private static final String type = "bus";
+	private final String type = "bus";
 	private String line;
 	private int stops;
 	public String getLine() {
@@ -17,7 +17,7 @@ public class RouteBusDetailResource extends RouteDetailResource {
 	public void setStops(int stops) {
 		this.stops = stops;
 	}
-	public static String getType() {
+	public String getType() {
 		return type;
 	}
 	

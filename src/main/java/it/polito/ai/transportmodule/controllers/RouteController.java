@@ -81,20 +81,11 @@ public class RouteController {
 			//no information requested
 			return new ResponseEntity<RouteResource>(HttpStatus.NOT_FOUND);
 		}
-		
-		if(!detailsReq && !geoJsonReq){
-			//no information requested
-			return new ResponseEntity<RouteResource>(routeResource, HttpStatus.OK);
-		}
-		
+				
 		/*
 		 * WARNING: a Route describes a MinPath stored into the DB.
 		 * It does not contain details on the connection between the fromPoint and the first Route stop
 		 * and between the last Route stop and the toPoint!
-		 */
-		
-		/*
-		 * WARNING: the route segments in a Route object are sorted!
 		 */
 		
 		if(detailsReq){
@@ -111,6 +102,10 @@ public class RouteController {
 	}
 	
 	private List<RouteDetailResource> createRouteDetails(Route route){
+		
+		/*
+		 * WARNING: the route segments in a Route object are sorted!
+		 */
 		
 		int numberOfSegments = route.getSegments().size();
 		List<RouteSegment> routeSegments = route.getSegments();
@@ -140,50 +135,23 @@ public class RouteController {
 				//it is a segment by bus!
 				RouteBusSegment routeBusSegment = (RouteBusSegment) routeSegment;
 				for (RouteBusSegmentPortion routeBusSegmentPortion: routeBusSegment.getRouteBusSegmentPortions()) {
-					//extract the needed information from the RouteBusSegmentPortion
-					String line = routeBusSegmentPortion.getLineId();
-					List<BusStop> busStops = routeBusSegmentPortion.getBusStops();
-					int numberOfStops = busStops.size();
-					BusStop firstBusStop = busStops.get(0);
-					BusStop lastBusStop = busStops.get(numberOfStops-1);
-					String from = firstBusStop.getId() + " - " + firstBusStop.getName();
-					String to = lastBusStop.getId() + " - " + lastBusStop.getName();
 					
 					//create the RouteBusDetailResource for each RouteBusSegmentPortion
-					RouteBusDetailResource routeBusDetailResource = new RouteBusDetailResource();
-					routeBusDetailResource.setLine(line);
-					routeBusDetailResource.setFrom(from);
-					routeBusDetailResource.setTo(to);
-					routeBusDetailResource.setStops(numberOfStops); //numberOfStops - 1 == numberOfEdges!
-					routeBusDetailResource.setSequenceNumber(detailSequenceNumber);
-					detailSequenceNumber++;
+					RouteBusDetailResource routeBusDetailResource = createRouteBusDetailResource(routeBusSegmentPortion, detailSequenceNumber);
 					
 					//add to the details
 					details.add((RouteDetailResource) routeBusDetailResource);
+					detailSequenceNumber++;
 				}
 			}
 			else{
-				//it is a segment on foot!
-				//extract the needed information from the RouteSegment
-				List<BusStop> busStops = routeSegment.getBusStops();
-				int numberOfStops = busStops.size();
-				BusStop firstBusStop = busStops.get(0);
-				BusStop lastBusStop = busStops.get(numberOfStops-1);
-				String from = firstBusStop.getId() + " - " + firstBusStop.getName();
-				String to = lastBusStop.getId() + " - " + lastBusStop.getName();
-				double[] firstBusStopCoordinates = new double[]{firstBusStop.getLat(), firstBusStop.getLng()};
-				int distance = ((Double) linesService.getDistanceFromBusStop(firstBusStopCoordinates, lastBusStop.getId())).intValue();
-				
+				//it is a segment on foot!	
 				//create the RouteBusDetailResource for each RouteBusSegmentPortion
-				RouteFootDetailResource routeFootDetailResource = new RouteFootDetailResource();
-				routeFootDetailResource.setFrom(from);
-				routeFootDetailResource.setTo(to);
-				routeFootDetailResource.setLength(distance);
-				routeFootDetailResource.setSequenceNumber(detailSequenceNumber);
-				detailSequenceNumber++;
+				RouteFootDetailResource routeFootDetailResource = createRouteFootDetailResource(routeSegment, detailSequenceNumber);
 				
 				//add to the details
 				details.add((RouteDetailResource) routeFootDetailResource);
+				detailSequenceNumber++;
 			}
 		}
 		
@@ -202,6 +170,11 @@ public class RouteController {
 	}
 	
 	private GeoJson createRouteGeoJson(Route route){
+		
+		/*
+		 * WARNING: the route segments in a Route object are sorted!
+		 */
+		
 		
 		GeoJson geoJson = new GeoJson();
 		
@@ -236,88 +209,31 @@ public class RouteController {
 		 */
 		
 		//create the fromPoint to first stop linestring
-		//TODO
+		FeatureRouteLineString firstFeatureRouteLineString = createFirstFootFeatureRouteLineString(route);
+		//add to the GeoJson features
+		geoJson.getFeatures().add((FeatureGeneric) firstFeatureRouteLineString);
+		
 		//create the lastStop to the toPoint linestring
-		//TODO
+		FeatureRouteLineString lastFeatureRouteLineString = createLastFootFeatureRouteLineString(route);
+		//add to the GeoJson features
+		geoJson.getFeatures().add((FeatureGeneric) lastFeatureRouteLineString);
+		
 		//create all the other linestrings
 		for (RouteSegment routeSegment: route.getSegments()) {
 			if(routeSegment instanceof RouteBusSegment){
 				//it is a segment by bus!
 				RouteBusSegment routeBusSegment = (RouteBusSegment) routeSegment;
 				for (RouteBusSegmentPortion routeBusSegmentPortion: routeBusSegment.getRouteBusSegmentPortions()) {
-					//extract the needed information from the RouteBusSegmentPortion
-					String line = routeBusSegmentPortion.getLineId();
-					List<BusStop> busStops = routeBusSegmentPortion.getBusStops();
-					int numberOfStops = busStops.size();
-					BusStop firstBusStop = busStops.get(0);
-					BusStop lastBusStop = busStops.get(numberOfStops-1);
-					String from = firstBusStop.getId() + " - " + firstBusStop.getName();
-					String to = lastBusStop.getId() + " - " + lastBusStop.getName();
-					
-					//create the PropertiesRouteLineString
-					PropertiesRouteLineStringBus propertiesRouteLineStringBus = new PropertiesRouteLineStringBus();
-					propertiesRouteLineStringBus.setFrom(from);
-					propertiesRouteLineStringBus.setTo(to);
-					propertiesRouteLineStringBus.setLine(line);
-					propertiesRouteLineStringBus.setStops(numberOfStops);
-					
-					//create the GeometryLineString
-					GeometryLineString geometryLineString = new GeometryLineString();
-					/*
-					 * WARNING: THE BUS STOPS ARE SORTED INTO THE ARRAY LIST!
-					 */
-					for (BusStop busStop : busStops) {
-						List<Double> coordinate = new ArrayList<>();
-						coordinate.add(busStop.getLng());
-						coordinate.add(busStop.getLat());
-						geometryLineString.getCoordinates().add(coordinate);
-					}
-					
-					//create the FeatureRouteLineString
-					FeatureRouteLineString featureRouteLineString = new FeatureRouteLineString();
-					featureRouteLineString.setGeometry(geometryLineString);
-					featureRouteLineString.setProperties(propertiesRouteLineStringBus);
-					
-					
+					//create the route line string feature
+					FeatureRouteLineString featureRouteLineString = createBusFeatureRouteLineString(routeBusSegmentPortion);
 					//add to the GeoJson features
 					geoJson.getFeatures().add((FeatureGeneric) featureRouteLineString);
 				}
 			}
 			else{
 				//it is a segment on foot!
-				//extract the needed information from the RouteBusSegmentPortion
-				List<BusStop> busStops = routeSegment.getBusStops();
-				int numberOfStops = busStops.size();
-				BusStop firstBusStop = busStops.get(0);
-				BusStop lastBusStop = busStops.get(numberOfStops-1);
-				String from = firstBusStop.getId() + " - " + firstBusStop.getName();
-				String to = lastBusStop.getId() + " - " + lastBusStop.getName();
-				double[] firstBusStopCoordinates = new double[]{firstBusStop.getLat(), firstBusStop.getLng()};
-				int distance = ((Double) linesService.getDistanceFromBusStop(firstBusStopCoordinates, lastBusStop.getId())).intValue();
-				
-				//create the PropertiesRouteLineStringFoot
-				PropertiesRouteLineStringFoot propertiesRouteLineStringFoot = new PropertiesRouteLineStringFoot();
-				propertiesRouteLineStringFoot.setFrom(from);
-				propertiesRouteLineStringFoot.setTo(to);
-				propertiesRouteLineStringFoot.setLength(distance);
-				
-				//create the GeometryLineString
-				GeometryLineString geometryLineString = new GeometryLineString();
-				/*
-				 * WARNING: THE BUS STOPS ARE SORTED INTO THE ARRAY LIST!
-				 */
-				for (BusStop busStop : busStops) {
-					List<Double> coordinate = new ArrayList<>();
-					coordinate.add(busStop.getLng());
-					coordinate.add(busStop.getLat());
-					geometryLineString.getCoordinates().add(coordinate);
-				}
-				
-				//create the FeatureRouteLineString
-				FeatureRouteLineString featureRouteLineString = new FeatureRouteLineString();
-				featureRouteLineString.setGeometry(geometryLineString);
-				featureRouteLineString.setProperties(propertiesRouteLineStringFoot);
-				
+				//create the route line string feature
+				FeatureRouteLineString featureRouteLineString = createFootFeatureRouteLineString(routeSegment);
 				
 				//add to the GeoJson features
 				geoJson.getFeatures().add((FeatureGeneric) featureRouteLineString);
@@ -327,6 +243,205 @@ public class RouteController {
 		
 		return geoJson;
 	
+	}
+
+	private RouteBusDetailResource createRouteBusDetailResource(RouteBusSegmentPortion routeBusSegmentPortion, int detailSequenceNumber){
+		//extract the needed information from the RouteBusSegmentPortion
+		String line = routeBusSegmentPortion.getLineId();
+		List<BusStop> busStops = routeBusSegmentPortion.getBusStops();
+		int numberOfStops = busStops.size();
+		BusStop firstBusStop = busStops.get(0);
+		BusStop lastBusStop = busStops.get(numberOfStops-1);
+		String from = firstBusStop.getId() + " - " + firstBusStop.getName();
+		String to = lastBusStop.getId() + " - " + lastBusStop.getName();
+		
+		//create the RouteBusDetailResource for each RouteBusSegmentPortion
+		RouteBusDetailResource routeBusDetailResource = new RouteBusDetailResource();
+		routeBusDetailResource.setLine(line);
+		routeBusDetailResource.setFrom(from);
+		routeBusDetailResource.setTo(to);
+		routeBusDetailResource.setStops(numberOfStops); //numberOfStops - 1 == numberOfEdges!
+		routeBusDetailResource.setSequenceNumber(detailSequenceNumber);
+	
+		return routeBusDetailResource;
+	}
+	
+	private RouteFootDetailResource createRouteFootDetailResource(RouteSegment routeSegment, int detailSequenceNumber){
+		//extract the needed information from the RouteSegment
+		List<BusStop> busStops = routeSegment.getBusStops();
+		int numberOfStops = busStops.size();
+		BusStop firstBusStop = busStops.get(0);
+		BusStop lastBusStop = busStops.get(numberOfStops-1);
+		String from = firstBusStop.getId() + " - " + firstBusStop.getName();
+		String to = lastBusStop.getId() + " - " + lastBusStop.getName();
+		double[] firstBusStopCoordinates = new double[]{firstBusStop.getLat(), firstBusStop.getLng()};
+		int distance = ((Double) linesService.getDistanceFromBusStop(firstBusStopCoordinates, lastBusStop.getId())).intValue();
+		
+		//create the RouteBusDetailResource for each RouteBusSegmentPortion
+		RouteFootDetailResource routeFootDetailResource = new RouteFootDetailResource();
+		routeFootDetailResource.setFrom(from);
+		routeFootDetailResource.setTo(to);
+		routeFootDetailResource.setLength(distance);
+		routeFootDetailResource.setSequenceNumber(detailSequenceNumber);
+		
+		return routeFootDetailResource;
+	}
+	
+	private FeatureRouteLineString createBusFeatureRouteLineString(RouteBusSegmentPortion routeBusSegmentPortion){
+		//extract the needed information from the RouteBusSegmentPortion
+		String line = routeBusSegmentPortion.getLineId();
+		List<BusStop> busStops = routeBusSegmentPortion.getBusStops();
+		int numberOfStops = busStops.size();
+		BusStop firstBusStop = busStops.get(0);
+		BusStop lastBusStop = busStops.get(numberOfStops-1);
+		String from = firstBusStop.getId() + " - " + firstBusStop.getName();
+		String to = lastBusStop.getId() + " - " + lastBusStop.getName();
+		
+		//create the PropertiesRouteLineString
+		PropertiesRouteLineStringBus propertiesRouteLineStringBus = new PropertiesRouteLineStringBus();
+		propertiesRouteLineStringBus.setFrom(from);
+		propertiesRouteLineStringBus.setTo(to);
+		propertiesRouteLineStringBus.setLine(line);
+		propertiesRouteLineStringBus.setStops(numberOfStops);
+		
+		//create the GeometryLineString
+		GeometryLineString geometryLineString = new GeometryLineString();
+		/*
+		 * WARNING: THE BUS STOPS ARE SORTED INTO THE ARRAY LIST!
+		 */
+		for (BusStop busStop : busStops) {
+			List<Double> coordinate = new ArrayList<>();
+			coordinate.add(busStop.getLng());
+			coordinate.add(busStop.getLat());
+			geometryLineString.getCoordinates().add(coordinate);
+		}
+		
+		//create the FeatureRouteLineString
+		FeatureRouteLineString featureRouteLineString = new FeatureRouteLineString();
+		featureRouteLineString.setGeometry(geometryLineString);
+		featureRouteLineString.setProperties(propertiesRouteLineStringBus);
+		
+		return featureRouteLineString;
+	}
+	
+	private FeatureRouteLineString createFootFeatureRouteLineString(RouteSegment routeSegment){
+		//extract the needed information from the RouteBusSegmentPortion
+		List<BusStop> busStops = routeSegment.getBusStops();
+		int numberOfStops = busStops.size();
+		BusStop firstBusStop = busStops.get(0);
+		BusStop lastBusStop = busStops.get(numberOfStops-1);
+		String from = firstBusStop.getId() + " - " + firstBusStop.getName();
+		String to = lastBusStop.getId() + " - " + lastBusStop.getName();
+		double[] firstBusStopCoordinates = new double[]{firstBusStop.getLat(), firstBusStop.getLng()};
+		int distance = ((Double) linesService.getDistanceFromBusStop(firstBusStopCoordinates, lastBusStop.getId())).intValue();
+		
+		//create the PropertiesRouteLineStringFoot
+		PropertiesRouteLineStringFoot propertiesRouteLineStringFoot = new PropertiesRouteLineStringFoot();
+		propertiesRouteLineStringFoot.setFrom(from);
+		propertiesRouteLineStringFoot.setTo(to);
+		propertiesRouteLineStringFoot.setLength(distance);
+		
+		//create the GeometryLineString
+		GeometryLineString geometryLineString = new GeometryLineString();
+		/*
+		 * WARNING: THE BUS STOPS ARE SORTED INTO THE ARRAY LIST!
+		 */
+		for (BusStop busStop : busStops) {
+			List<Double> coordinate = new ArrayList<>();
+			coordinate.add(busStop.getLng());
+			coordinate.add(busStop.getLat());
+			geometryLineString.getCoordinates().add(coordinate);
+		}
+		
+		//create the FeatureRouteLineString
+		FeatureRouteLineString featureRouteLineString = new FeatureRouteLineString();
+		featureRouteLineString.setGeometry(geometryLineString);
+		featureRouteLineString.setProperties(propertiesRouteLineStringFoot);
+		
+		return featureRouteLineString;
+	}
+	
+	private FeatureRouteLineString createFirstFootFeatureRouteLineString(Route route) {
+		//extract the needed information from the Route
+		double fromLat = route.getStartCoordinates()[0];
+		double fromLng = route.getStartCoordinates()[1];
+		BusStop firstBusStop = route.getSegments().get(0).getBusStops().get(0);
+		double firstBusStopLat = firstBusStop.getLat();
+		double firstBusStopLng = firstBusStop.getLng();
+		
+		String from = "Lat: "+fromLat+ " - Lng: "+ fromLng;
+		String to = firstBusStop.getId() + " - " + firstBusStop.getName();
+		double[] fromCoordinates = new double[]{fromLat, fromLng};
+		int distance = ((Double) linesService.getDistanceFromBusStop(fromCoordinates, firstBusStop.getId())).intValue();
+		
+		//create the PropertiesRouteLineStringFoot
+		PropertiesRouteLineStringFoot propertiesRouteLineStringFoot = new PropertiesRouteLineStringFoot();
+		propertiesRouteLineStringFoot.setFrom(from);
+		propertiesRouteLineStringFoot.setTo(to);
+		propertiesRouteLineStringFoot.setLength(distance);
+		
+		//create the GeometryLineString
+		GeometryLineString geometryLineString = new GeometryLineString();
+		//from point coordinates
+		List<Double> fromCoordinateList = new ArrayList<>();
+		fromCoordinateList.add(fromLng);	//WARNING: LNG <-> LAT!
+		fromCoordinateList.add(fromLat);	//WARNING: LNG <-> LAT!
+		geometryLineString.getCoordinates().add(fromCoordinateList);
+		//first stop coordinates
+		List<Double> firstBusStopCoordinateList = new ArrayList<>();
+		firstBusStopCoordinateList.add(firstBusStopLng);	//WARNING: LNG <-> LAT!
+		firstBusStopCoordinateList.add(firstBusStopLat);	//WARNING: LNG <-> LAT!
+		geometryLineString.getCoordinates().add(firstBusStopCoordinateList);
+		
+		//create the FeatureRouteLineString
+		FeatureRouteLineString featureRouteLineString = new FeatureRouteLineString();
+		featureRouteLineString.setGeometry(geometryLineString);
+		featureRouteLineString.setProperties(propertiesRouteLineStringFoot);
+		
+		return featureRouteLineString;
+	}
+	
+	private FeatureRouteLineString createLastFootFeatureRouteLineString(Route route) {
+		//extract the needed information from the Route
+		double toLat = route.getArriveCoordinates()[0];
+		double toLng = route.getArriveCoordinates()[1];
+		int numberOfSegments = route.getSegments().size();
+		RouteSegment lastRouteSegment = route.getSegments().get(numberOfSegments-1);
+		int numberOfStopsInLastRouteSegment = lastRouteSegment.getBusStops().size();
+		BusStop lastBusStop = lastRouteSegment.getBusStops().get(numberOfStopsInLastRouteSegment-1);
+		double lastBusStopLat = lastBusStop.getLat();
+		double lastBusStopLng = lastBusStop.getLng();
+		
+		String from = "Lat: "+toLat+ " - Lng: "+ toLng;
+		String to = lastBusStop.getId() + " - " + lastBusStop.getName();
+		double[] toCoordinates = new double[]{toLat, toLng};
+		int distance = ((Double) linesService.getDistanceFromBusStop(toCoordinates, lastBusStop.getId())).intValue();
+		
+		//create the PropertiesRouteLineStringFoot
+		PropertiesRouteLineStringFoot propertiesRouteLineStringFoot = new PropertiesRouteLineStringFoot();
+		propertiesRouteLineStringFoot.setFrom(from);
+		propertiesRouteLineStringFoot.setTo(to);
+		propertiesRouteLineStringFoot.setLength(distance);
+		
+		//create the GeometryLineString
+		GeometryLineString geometryLineString = new GeometryLineString();
+		//to point coordinates
+		List<Double> toCoordinateList = new ArrayList<>();
+		toCoordinateList.add(toLng);	//WARNING: LNG <-> LAT!
+		toCoordinateList.add(toLat);	//WARNING: LNG <-> LAT!
+		geometryLineString.getCoordinates().add(toCoordinateList);
+		//last stop coordinates
+		List<Double> lastBusStopCoordinateList = new ArrayList<>();
+		lastBusStopCoordinateList.add(lastBusStopLng);	//WARNING: LNG <-> LAT!
+		lastBusStopCoordinateList.add(lastBusStopLat);	//WARNING: LNG <-> LAT!
+		geometryLineString.getCoordinates().add(lastBusStopCoordinateList);
+		
+		//create the FeatureRouteLineString
+		FeatureRouteLineString featureRouteLineString = new FeatureRouteLineString();
+		featureRouteLineString.setGeometry(geometryLineString);
+		featureRouteLineString.setProperties(propertiesRouteLineStringFoot);
+		
+		return featureRouteLineString;
 	}
 	
 }
