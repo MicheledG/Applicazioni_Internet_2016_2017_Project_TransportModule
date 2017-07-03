@@ -21,8 +21,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EnableTransactionManagement 
-@EnableJpaRepositories("it.polito.ai.transportmodule.repositories.jpa")
+@EnableTransactionManagement
+@EnableJpaRepositories("it.polito.ai")
 @PropertySource("classpath:jpa.properties")
 public class JpaConfig {
 	
@@ -38,7 +38,7 @@ public class JpaConfig {
 		
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dataSource());
-		em.setPackagesToScan("it.polito.ai.transportmodule.model.jpa");
+		em.setPackagesToScan("it.polito.ai.transport.model.jpa");
 		em.setJpaVendorAdapter(vendorAdapter);
 		em.setJpaProperties(additionalProperties());
  
