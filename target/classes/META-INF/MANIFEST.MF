@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Implementation-Title: transport-module
 Implementation-Version: 0.0.1-SNAPSHOT
-Built-By: chief
+Built-By: thomasvitale
 Implementation-Vendor-Id: it.polito.ai
-Build-Jdk: 1.8.0_121
+Build-Jdk: 1.8.0_72
 Implementation-URL: http://projects.spring.io/spring-boot/transport-mo
  dule/
 Created-By: Maven Integration for Eclipse
